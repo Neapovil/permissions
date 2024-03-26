@@ -1,8 +1,10 @@
 {
   "groups": [
     {
+      "id": 1,
       "name": "default",
-      "permissions": []
+      "permissions": [],
+      "players": []
     }
   ]
 }

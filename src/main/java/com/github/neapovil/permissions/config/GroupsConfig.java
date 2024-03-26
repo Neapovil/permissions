@@ -1,8 +1,8 @@
 package com.github.neapovil.permissions.config;
 
-import com.github.neapovil.permissions.gson.GroupsGson;
+import com.github.neapovil.permissions.resource.GroupsResource;
 
-public final class GroupsConfig extends Config<GroupsGson>
+public final class GroupsConfig extends Config<GroupsResource>
 {
     String file()
     {
@@ -10,8 +10,8 @@ public final class GroupsConfig extends Config<GroupsGson>
     }
 
     @Override
-    Class<GroupsGson> gson()
+    Class<GroupsResource> gson()
     {
-        return GroupsGson.class;
+        return GroupsResource.class;
     }
 }

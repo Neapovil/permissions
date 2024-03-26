@@ -8,7 +8,6 @@ import org.bukkit.permissions.PermissionAttachment;
 
 import com.github.neapovil.permissions.Permissions;
 import com.github.neapovil.permissions.object.PermissionsObject;
-import com.github.neapovil.permissions.persistence.PermissionsDataType;
 
 public final class PermissionsListener implements Listener
 {
@@ -17,20 +16,33 @@ public final class PermissionsListener implements Listener
     @EventHandler
     private void playerJoin(PlayerJoinEvent event)
     {
-        plugin.players.put(event.getPlayer().getUniqueId(), event.getPlayer().addAttachment(plugin));
+        final PermissionAttachment permissionattachment = plugin.playerAttachment(event.getPlayer());
+        final PermissionsObject permissionsobject = event.getPlayer().getPersistentDataContainer().getOrDefault(plugin.permissionsKey,
+                plugin.permissionsDataType, new PermissionsObject());
 
-        final PermissionsObject permissions = event.getPlayer().getPersistentDataContainer().get(plugin.permissionsKey, new PermissionsDataType());
+        plugin.groups().data.groups.forEach(group -> {
+            group.findPlayer(event.getPlayer()).ifPresentOrElse(player -> {
+                if (!permissionsobject.groups.contains(group.id))
+                {
+                    permissionsobject.groups.add(group.id);
+                }
+            }, () -> permissionsobject.groups.removeIf(i -> i == group.id));
+        });
 
-        if (permissions == null)
-        {
-            event.getPlayer().getPersistentDataContainer().set(plugin.permissionsKey, new PermissionsDataType(), new PermissionsObject());
-        }
+        event.getPlayer().getPersistentDataContainer().set(plugin.permissionsKey, plugin.permissionsDataType, permissionsobject);
+
+        permissionsobject.groups().forEach(group -> {
+            group.permissions.forEach(i -> {
+                permissionattachment.setPermission(i, true);
+            });
+        });
+
+        event.getPlayer().updateCommands();
     }
 
     @EventHandler
     private void playerQuit(PlayerQuitEvent event)
     {
-        final PermissionAttachment permissionattachment = plugin.players.remove(event.getPlayer().getUniqueId());
-        event.getPlayer().removeAttachment(permissionattachment);
+        plugin.removePlayerAttachment(event.getPlayer());
     }
 }
