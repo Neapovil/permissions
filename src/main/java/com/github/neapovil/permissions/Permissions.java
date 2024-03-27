@@ -10,8 +10,11 @@ import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissionAttachment;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import com.github.neapovil.permissions.command.GroupsAddCommand;
+import com.github.neapovil.permissions.command.GroupsRemoveCommand;
 import com.github.neapovil.permissions.config.GroupsConfig;
 import com.github.neapovil.permissions.listener.PermissionsListener;
+import com.github.neapovil.permissions.object.PermissionsObject;
 import com.github.neapovil.permissions.persistence.PermissionsDataType;
 
 public final class Permissions extends JavaPlugin
@@ -39,6 +42,9 @@ public final class Permissions extends JavaPlugin
         {
             e.printStackTrace();
         }
+
+        new GroupsAddCommand().register();
+        new GroupsRemoveCommand().register();
     }
 
     @Override
@@ -69,5 +75,34 @@ public final class Permissions extends JavaPlugin
         {
             player.removeAttachment(permissionattachment);
         }
+    }
+
+    public void syncPermissions(Player player)
+    {
+        final PermissionAttachment permissionattachment = this.playerAttachment(player);
+        final PermissionsObject permissionsobject = player.getPersistentDataContainer().getOrDefault(this.permissionsKey,
+                this.permissionsDataType, new PermissionsObject());
+
+        this.groups.data.groups.forEach(group -> {
+            group.findPlayer(player).ifPresentOrElse(player1 -> {
+                if (!permissionsobject.groups.contains(group.id))
+                {
+                    permissionsobject.groups.add(group.id);
+                }
+
+                group.permissions.forEach(i -> {
+                    permissionattachment.setPermission(i, true);
+                });
+            }, () -> {
+                permissionsobject.groups.removeIf(i -> i == group.id);
+                group.permissions.forEach(i -> {
+                    permissionattachment.unsetPermission(i);
+                });
+            });
+        });
+
+        player.getPersistentDataContainer().set(this.permissionsKey, this.permissionsDataType, permissionsobject);
+
+        player.updateCommands();
     }
 }
