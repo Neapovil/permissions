@@ -19,12 +19,12 @@ public final class PlayersCommand extends AbstractCommand
                 .withArguments(new EntitySelectorArgument.OnePlayer("player"))
                 .withArguments(new LiteralArgument("groups"))
                 .withArguments(new LiteralArgument("add"))
-                .withArguments(new StringArgument("group").replaceSuggestions(ArgumentSuggestions.strings(plugin.groups().data.commandSuggestions())))
+                .withArguments(new StringArgument("group").replaceSuggestions(ArgumentSuggestions.strings(plugin.groups().commandSuggestions())))
                 .executes((sender, args) -> {
                     final Player player = (Player) args.get("player");
                     final String groupname = (String) args.get("group");
 
-                    plugin.groups().data.find(groupname).ifPresentOrElse(group -> {
+                    plugin.groups().find(groupname).ifPresentOrElse(group -> {
                         group.findPlayer(player).ifPresentOrElse((i) -> {
                             sender.sendRichMessage("<red>ERROR ! <white>Player already has this group");
                         }, () -> {
@@ -48,12 +48,12 @@ public final class PlayersCommand extends AbstractCommand
                 .withArguments(new EntitySelectorArgument.OnePlayer("player"))
                 .withArguments(new LiteralArgument("groups"))
                 .withArguments(new LiteralArgument("remove"))
-                .withArguments(new StringArgument("group").replaceSuggestions(ArgumentSuggestions.strings(plugin.groups().data.commandSuggestions())))
+                .withArguments(new StringArgument("group").replaceSuggestions(ArgumentSuggestions.strings(plugin.groups().commandSuggestions())))
                 .executes((sender, args) -> {
                     final Player player = (Player) args.get("player");
                     final String groupname = (String) args.get("group");
 
-                    plugin.groups().data.find(groupname).ifPresentOrElse(group -> {
+                    plugin.groups().find(groupname).ifPresentOrElse(group -> {
                         group.findPlayer(player).ifPresentOrElse((i) -> {
                             try
                             {

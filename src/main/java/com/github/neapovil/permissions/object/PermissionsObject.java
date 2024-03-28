@@ -13,6 +13,6 @@ public final class PermissionsObject
     public List<GroupsResource.Group> groups()
     {
         final Permissions plugin = Permissions.instance();
-        return plugin.groups().data.groups.stream().filter(i -> this.groups.contains(i.id)).toList();
+        return plugin.groups().groups.stream().filter(i -> this.groups.contains(i.id)).toList();
     }
 }

@@ -39,6 +39,11 @@ public final class GroupsResource
         public List<String> permissions = new ArrayList<>();
         public final List<Player> players = new ArrayList<>();
 
+        public String idAsString()
+        {
+            return "" + this.id;
+        }
+
         public Optional<org.bukkit.entity.Player> findPlayer(org.bukkit.entity.Player player)
         {
             return this.players.stream()
@@ -53,7 +58,7 @@ public final class GroupsResource
             this.players.add(new Player(player.getUniqueId()));
 
             final Permissions plugin = Permissions.instance();
-            plugin.groups().save();
+            plugin.save();
             plugin.syncPermissions(player);
         }
 
@@ -62,7 +67,7 @@ public final class GroupsResource
             this.players.removeIf(i -> i.uuid.equals(player.getUniqueId()));
 
             final Permissions plugin = Permissions.instance();
-            plugin.groups().save();
+            plugin.save();
             plugin.syncPermissions(player);
         }
 
