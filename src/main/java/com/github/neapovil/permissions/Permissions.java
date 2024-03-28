@@ -10,8 +10,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissionAttachment;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import com.github.neapovil.permissions.command.GroupsAddCommand;
-import com.github.neapovil.permissions.command.GroupsRemoveCommand;
+import com.github.neapovil.permissions.command.PlayersCommand;
+import com.github.neapovil.permissions.command.GroupsCommand;
 import com.github.neapovil.permissions.config.GroupsConfig;
 import com.github.neapovil.permissions.listener.PermissionsListener;
 import com.github.neapovil.permissions.object.PermissionsObject;
@@ -30,21 +30,22 @@ public final class Permissions extends JavaPlugin
     {
         instance = this;
 
-        this.getServer().getPluginManager().registerEvents(new PermissionsListener(), this);
-
         this.groups = new GroupsConfig();
 
         try
         {
             this.groups.init();
+            this.groups.data.groups.forEach(i -> this.getServer().getPluginManager().addPermission(i.permission()));
         }
         catch (IOException e)
         {
             e.printStackTrace();
         }
 
-        new GroupsAddCommand().register();
-        new GroupsRemoveCommand().register();
+        this.getServer().getPluginManager().registerEvents(new PermissionsListener(), this);
+
+        new GroupsCommand().register();
+        new PlayersCommand().register();
     }
 
     @Override
@@ -90,15 +91,18 @@ public final class Permissions extends JavaPlugin
                     permissionsobject.groups.add(group.id);
                 }
 
-                group.permissions.forEach(i -> {
-                    permissionattachment.setPermission(i, true);
-                });
+                permissionattachment.setPermission("" + group.id, true);
             }, () -> {
                 permissionsobject.groups.removeIf(i -> i == group.id);
-                group.permissions.forEach(i -> {
-                    permissionattachment.unsetPermission(i);
-                });
+                permissionattachment.unsetPermission("" + group.id);
             });
+        });
+
+        permissionsobject.groups.forEach(i -> {
+            if (this.groups.data.find(i).isEmpty())
+            {
+                permissionattachment.unsetPermission("" + i);
+            }
         });
 
         player.getPersistentDataContainer().set(this.permissionsKey, this.permissionsDataType, permissionsobject);

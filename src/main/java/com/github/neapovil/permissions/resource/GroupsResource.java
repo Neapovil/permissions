@@ -3,10 +3,13 @@ package com.github.neapovil.permissions.resource;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.bukkit.Bukkit;
+import org.bukkit.permissions.Permission;
 
 import com.github.neapovil.permissions.Permissions;
 
@@ -24,7 +27,12 @@ public final class GroupsResource
         return this.groups.stream().filter(i -> i.name.equalsIgnoreCase(name)).findFirst();
     }
 
-    public class Group
+    public Optional<Group> find(int id)
+    {
+        return this.groups.stream().filter(i -> i.id == id).findFirst();
+    }
+
+    public static class Group
     {
         public int id;
         public String name;
@@ -33,7 +41,11 @@ public final class GroupsResource
 
         public Optional<org.bukkit.entity.Player> findPlayer(org.bukkit.entity.Player player)
         {
-            return this.players.stream().filter(i -> i.uuid.equals(player.getUniqueId())).map(i -> i.player()).findFirst();
+            return this.players.stream()
+                    .filter(i -> i.uuid.equals(player.getUniqueId()))
+                    .filter(i -> i.player().isPresent())
+                    .map(i -> i.player().get())
+                    .findFirst();
         }
 
         public void addPlayer(org.bukkit.entity.Player player) throws IOException
@@ -54,6 +66,12 @@ public final class GroupsResource
             plugin.syncPermissions(player);
         }
 
+        public Permission permission()
+        {
+            final Map<String, Boolean> children = this.permissions.stream().collect(Collectors.toMap(k -> k, v -> true));
+            return new Permission("" + this.id, children);
+        }
+
         public class Player
         {
             public UUID uuid;
@@ -63,9 +81,9 @@ public final class GroupsResource
                 this.uuid = uuid;
             }
 
-            public org.bukkit.entity.Player player()
+            public Optional<org.bukkit.entity.Player> player()
             {
-                return Bukkit.getPlayer(this.uuid);
+                return Optional.ofNullable(Bukkit.getPlayer(this.uuid));
             }
         }
     }
