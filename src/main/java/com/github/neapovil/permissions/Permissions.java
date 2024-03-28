@@ -14,6 +14,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import com.github.neapovil.permissions.command.GroupsCommand;
 import com.github.neapovil.permissions.command.PlayersCommand;
 import com.github.neapovil.permissions.command.ReloadCommand;
+import com.github.neapovil.permissions.event.PlayerPermissionsChangeEvent;
 import com.github.neapovil.permissions.listener.PermissionsListener;
 import com.github.neapovil.permissions.object.PermissionsObject;
 import com.github.neapovil.permissions.persistence.PermissionsDataType;
@@ -114,6 +115,9 @@ public final class Permissions extends JavaPlugin
         player.getPersistentDataContainer().set(this.permissionsKey, this.permissionsDataType, permissionsobject);
 
         player.updateCommands();
+
+        final PlayerPermissionsChangeEvent event = new PlayerPermissionsChangeEvent(player);
+        this.getServer().getPluginManager().callEvent(event);
     }
 
     public void load() throws IOException
