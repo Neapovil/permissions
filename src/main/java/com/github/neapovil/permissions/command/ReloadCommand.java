@@ -2,6 +2,8 @@ package com.github.neapovil.permissions.command;
 
 import java.io.IOException;
 
+import org.bukkit.entity.Player;
+
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.arguments.LiteralArgument;
 
@@ -29,6 +31,13 @@ public final class ReloadCommand extends AbstractCommand
                                 });
                             });
                         });
+                        for (Player i : plugin.getServer().getOnlinePlayers().toArray(Player[]::new))
+                        {
+                            if (i.isOnline())
+                            {
+                                plugin.syncPermissions(i);
+                            }
+                        }
                         sender.sendMessage("Groups reloaded");
                     }
                     catch (IOException e)
@@ -36,6 +45,7 @@ public final class ReloadCommand extends AbstractCommand
                         sender.sendRichMessage("<red>Unable to reload groups");
                         plugin.getLogger().severe(e.getMessage());
                     }
-                });
+                })
+                .register();
     }
 }
