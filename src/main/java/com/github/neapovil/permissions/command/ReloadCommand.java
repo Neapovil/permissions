@@ -2,8 +2,6 @@ package com.github.neapovil.permissions.command;
 
 import java.io.IOException;
 
-import org.bukkit.entity.Player;
-
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.arguments.LiteralArgument;
 
@@ -22,22 +20,9 @@ public final class ReloadCommand extends AbstractCommand
                         plugin.groups().groups.forEach(group -> {
                             plugin.getServer().getPluginManager().removePermission(group.idAsString());
                             plugin.getServer().getPluginManager().addPermission(group.permission());
-                            group.players.forEach(i -> {
-                                i.player().ifPresent(player -> {
-                                    if (player.isOnline())
-                                    {
-                                        plugin.syncPermissions(player);
-                                    }
-                                });
-                            });
+                            plugin.syncPermissions(group);
                         });
-                        for (Player i : plugin.getServer().getOnlinePlayers().toArray(Player[]::new))
-                        {
-                            if (i.isOnline())
-                            {
-                                plugin.syncPermissions(i);
-                            }
-                        }
+                        plugin.syncPermissions();
                         sender.sendMessage("Groups reloaded");
                     }
                     catch (IOException e)

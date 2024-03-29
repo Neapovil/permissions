@@ -74,7 +74,7 @@ public final class GroupsResource
         public Permission permission()
         {
             final Map<String, Boolean> children = this.permissions.stream().collect(Collectors.toMap(k -> k, v -> true));
-            return new Permission("" + this.id, children);
+            return new Permission(this.idAsString(), children);
         }
 
         public class Player

@@ -62,20 +62,85 @@ public final class GroupsCommand extends AbstractCommand
                             plugin.groups().groups.removeIf(i -> i.name.equalsIgnoreCase(name));
                             plugin.save();
                             plugin.getServer().getPluginManager().removePermission(name);
-                            group.players.forEach(i -> {
-                                i.player().ifPresent(player -> {
-                                    if (player.isOnline())
-                                    {
-                                        plugin.syncPermissions(player);
-                                    }
-                                });
-                            });
+                            plugin.syncPermissions(group);
                             sender.sendMessage("Group %s removed".formatted(name));
                         }
                         catch (IOException e)
                         {
                             sender.sendRichMessage("Unable to create group");
                             plugin.getLogger().severe(e.getMessage());
+                        }
+                    }, () -> sender.sendRichMessage("<red>Group not found"));
+                })
+                .register();
+
+        new CommandAPICommand("permissions")
+                .withPermission("permissions.command")
+                .withArguments(new LiteralArgument("groups"))
+                .withArguments(new LiteralArgument("edit"))
+                .withArguments(new StringArgument("groupName").replaceSuggestions(ArgumentSuggestions.strings(plugin.groups().commandSuggestions())))
+                .withArguments(new LiteralArgument("permissions"))
+                .withArguments(new LiteralArgument("add"))
+                .withArguments(new StringArgument("perm"))
+                .executes((sender, args) -> {
+                    final String groupname = (String) args.get("groupName");
+                    final String perm = (String) args.get("perm");
+
+                    plugin.groups().find(groupname).ifPresentOrElse(group -> {
+                        if (group.permissions.contains(perm))
+                        {
+                            sender.sendRichMessage("<red>Group already has this permission");
+                        }
+                        else
+                        {
+                            try
+                            {
+                                group.permissions.add(perm);
+                                plugin.save();
+                                plugin.syncPermissions(group);
+                                sender.sendMessage("Permission added");
+                            }
+                            catch (IOException e)
+                            {
+                                sender.sendRichMessage("<red>Unable to add permission");
+                                plugin.getLogger().severe(e.getMessage());
+                            }
+                        }
+                    }, () -> sender.sendRichMessage("<red>Group not found"));
+                })
+                .register();
+
+        new CommandAPICommand("permissions")
+                .withPermission("permissions.command")
+                .withArguments(new LiteralArgument("groups"))
+                .withArguments(new LiteralArgument("edit"))
+                .withArguments(new StringArgument("groupName").replaceSuggestions(ArgumentSuggestions.strings(plugin.groups().commandSuggestions())))
+                .withArguments(new LiteralArgument("permissions"))
+                .withArguments(new LiteralArgument("remove"))
+                .withArguments(new StringArgument("perm"))
+                .executes((sender, args) -> {
+                    final String groupname = (String) args.get("groupName");
+                    final String perm = (String) args.get("perm");
+
+                    plugin.groups().find(groupname).ifPresentOrElse(group -> {
+                        if (group.permissions.contains(perm))
+                        {
+                            try
+                            {
+                                group.permissions.removeIf(i -> i.equalsIgnoreCase(perm));
+                                plugin.save();
+                                plugin.syncPermissions(group);
+                                sender.sendMessage("Permission removed");
+                            }
+                            catch (IOException e)
+                            {
+                                sender.sendRichMessage("<red>Unable to remove permission");
+                                plugin.getLogger().severe(e.getMessage());
+                            }
+                        }
+                        else
+                        {
+                            sender.sendRichMessage("<red>Group doesn't have this permission");
                         }
                     }, () -> sender.sendRichMessage("<red>Group not found"));
                 })

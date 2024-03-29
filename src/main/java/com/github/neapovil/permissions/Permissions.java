@@ -120,6 +120,29 @@ public final class Permissions extends JavaPlugin
         this.getServer().getPluginManager().callEvent(event);
     }
 
+    public void syncPermissions(GroupsResource.Group group)
+    {
+        group.players.forEach(i -> {
+            i.player().ifPresent(player -> {
+                if (player.isOnline())
+                {
+                    this.syncPermissions(player);
+                }
+            });
+        });
+    }
+
+    public void syncPermissions()
+    {
+        for (Player i : this.getServer().getOnlinePlayers().toArray(Player[]::new))
+        {
+            if (i.isOnline())
+            {
+                this.syncPermissions(i);
+            }
+        }
+    }
+
     public void load() throws IOException
     {
         final String string = Files.readString(this.getDataFolder().toPath().resolve("groups.json"));
