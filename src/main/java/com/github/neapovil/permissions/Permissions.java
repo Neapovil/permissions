@@ -36,8 +36,6 @@ public final class Permissions extends JavaPlugin
     {
         instance = this;
 
-        this.saveResource("groups.json", false);
-
         try
         {
             this.load();
@@ -145,6 +143,7 @@ public final class Permissions extends JavaPlugin
 
     public void load() throws IOException
     {
+        this.saveResource("groups.json", false);
         final String string = Files.readString(this.getDataFolder().toPath().resolve("groups.json"));
         this.groupsResource = this.gson.fromJson(string, GroupsResource.class);
     }
