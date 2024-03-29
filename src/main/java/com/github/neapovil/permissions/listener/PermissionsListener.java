@@ -51,14 +51,14 @@ public final class PermissionsListener implements Listener
         {
             final Player player = Bukkit.getPlayer(event.getCommand().replace("op ", ""));
             final PlayerPermissionsChangeEvent event1 = new PlayerPermissionsChangeEvent(player);
-            plugin.getServer().getPluginManager().callEvent(event1);
+            plugin.getServer().getScheduler().runTask(plugin, () -> plugin.getServer().getPluginManager().callEvent(event1));
         }
 
         if (event.getCommand().startsWith("deop "))
         {
             final Player player = Bukkit.getPlayer(event.getCommand().replace("deop ", ""));
             final PlayerPermissionsChangeEvent event1 = new PlayerPermissionsChangeEvent(player);
-            plugin.getServer().getPluginManager().callEvent(event1);
+            plugin.getServer().getScheduler().runTask(plugin, () -> plugin.getServer().getPluginManager().callEvent(event1));
         }
     }
 }
